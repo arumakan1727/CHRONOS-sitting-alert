@@ -1,0 +1,12 @@
+Language: Cpp
+BasedOnStyle: Chromium
+PointerAlignment: Right
+
+AlignAfterOpenBracket: BlockIndent
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+IndentWidth: 2
+ContinuationIndentWidth: 2
