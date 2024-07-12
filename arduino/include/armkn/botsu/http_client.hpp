@@ -136,6 +136,7 @@ class SimpleHttpClient {
       response.status_code =
         status_line.substring(first_space + 1, second_space).toInt();
     }
+    Serial.println("[INFO] Update state to READING_RESPONSE_HEADER");
     state = State::READING_RESPONSE_HEADER;
   }
 
@@ -147,7 +148,10 @@ class SimpleHttpClient {
     const String line = client.readStringUntil('\r');
     client.readStringUntil('\n');  // Skip the newline
 
+    Serial.println("[INFO] Readed response header line");
+
     if (line.isEmpty()) {
+      Serial.println("[INFO] Update state to READDING_RESPONSE_BODY");
       state = State::READDING_RESPONSE_BODY;
       return;
     }
@@ -169,6 +173,7 @@ class SimpleHttpClient {
     if (!client.available())
       return;
     response.body = client.readString();
+    Serial.println("[INFO] Readed response body and update state to IDLE");
     state = State::IDLE;
     handler(response);
   }
