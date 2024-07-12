@@ -1,0 +1,39 @@
+version: '3'
+
+# Taskfile のドキュメント: https://taskfile.dev/usage/
+
+tasks:
+  default:
+    cmds:
+      - task: list-tasks
+
+  list-tasks:
+    desc: タスクランナー `task` のタスクを一覧表示する。
+    cmd: task --list
+    silent: true
+
+  dev:
+    desc: キューをポーリングするバッチを実行する。
+    cmd: poetry run uvicorn app.main:api --host 0.0.0.0 --port 8000 --reload
+
+  fmt:
+    desc: ソースコードを整形する。fix可能なlintエラーを修正する。インポート順もソートする。
+    cmds:
+      - poetry run ruff format
+      - poetry run ruff check --fix-only
+
+  chk:
+    desc: lintと静的型チェックとフォーマットチェックを実行する。
+    ignore_error: true
+    cmds:
+      - task: lint
+      - task: typecheck
+      - cmd: poetry run ruff format --check
+
+  lint:
+    desc: lintを実行する。
+    cmd: poetry run ruff check
+
+  typecheck:
+    desc: 静的型チェックを実行する。
+    cmd: poetry run pyright
