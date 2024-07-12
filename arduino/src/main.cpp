@@ -10,20 +10,19 @@
 constexpr int BUZZER_PIN = 11;
 constexpr int FSR_PIN = A0;
 
-constexpr int SITTING_PRESSURE_THRESHOLD = 400;
+constexpr int SITTING_PRESSURE_THRESHOLD = 60;
 
-constexpr armkn::MilliTimeUInt FSR_CHECK_INTERVAL_MS = 2000;
-constexpr unsigned DATA_POINTS_FSR_CHECK_WINDOW_SIZE =
-  45 * 60 * 1000 / FSR_CHECK_INTERVAL_MS;
-constexpr unsigned DATA_POINTS_TOO_MUCH_SITTING_THRESHOLD =
-  30 * 60 * 1000 / FSR_CHECK_INTERVAL_MS;
-// constexpr unsigned DATA_POINTS_FSR_CHECK_WINDOW_SIZE = 1;
-// constexpr unsigned DATA_POINTS_TOO_MUCH_SITTING_THRESHOLD = 1;
+constexpr armkn::MilliTimeUInt SITTING_CHECK_INTERVAL_MS = 2000;
+constexpr armkn::MilliTimeUInt SITTING_STATE_POST_INTERVAL_MS = 5000;
 
-constexpr armkn::MilliTimeUInt POST_SITTING_PRESSURE_INTERVAL_MS = 5000;
+// 30分間のうち20分間のデータポイントが座り状態なら「座りすぎ状態」とする
+constexpr unsigned SITTING_CHECK_WINDOW_DATA_POINTS =
+  30 * 60 * 1000 / SITTING_CHECK_INTERVAL_MS;
+constexpr unsigned TOO_MUCH_SITTING_THRESHOLD_DATA_POINTS =
+  25 * 60 * 1000 / SITTING_CHECK_INTERVAL_MS;
 
 auto recent_sitting_counter =
-  armkn::SummingQueue<unsigned>(DATA_POINTS_FSR_CHECK_WINDOW_SIZE);
+  armkn::SummingQueue<unsigned>(SITTING_CHECK_WINDOW_DATA_POINTS);
 
 auto http_request_err_buzzer = armkn::PeriodicDigitalSignal(
   "http_request_err_buzzer",
@@ -79,17 +78,19 @@ void setup() {
 }
 
 auto check_sitting_pressure_task =
-  armkn::PeriodicTask(FSR_CHECK_INTERVAL_MS, []() {
+  armkn::PeriodicTask(SITTING_CHECK_INTERVAL_MS, []() {
     const auto sitting_pressure = analogRead(FSR_PIN);
     Serial.print("sitting_pressure: ");
     Serial.println(sitting_pressure);
 
-    recent_sitting_counter.add(sitting_pressure >= SITTING_PRESSURE_THRESHOLD);
+    const auto is_sitting = sitting_pressure > SITTING_PRESSURE_THRESHOLD;
+
+    recent_sitting_counter.add(is_sitting);
     const auto sitting_count = recent_sitting_counter.get_sum();
     Serial.print("sitting_count: ");
     Serial.println(sitting_count);
 
-    if (sitting_count >= DATA_POINTS_TOO_MUCH_SITTING_THRESHOLD) {
+    if (is_sitting && sitting_count > TOO_MUCH_SITTING_THRESHOLD_DATA_POINTS) {
       too_much_sitting_buzzer.enable();
     } else {
       too_much_sitting_buzzer.disable();
@@ -97,18 +98,24 @@ auto check_sitting_pressure_task =
   });
 
 auto post_sitting_puressure_task =
-  armkn::PeriodicTask(POST_SITTING_PRESSURE_INTERVAL_MS, []() {
+  armkn::PeriodicTask(SITTING_STATE_POST_INTERVAL_MS, []() {
     const auto sitting_pressure = analogRead(FSR_PIN);
+    const auto is_sitting = sitting_pressure > SITTING_PRESSURE_THRESHOLD;
 
-    char req_json[64];
+    char req_json[256];
     const auto body_size = snprintf(
       req_json,
       sizeof(req_json),
-      "{\"sitting_pressure\": %d}",
-      sitting_pressure
+      "{\"sitting_pressure\": %d"
+      ", \"is_sitting\": %s"
+      ", \"sitting_check_window_data_points\": %d"
+      ", \"window_sitting_count\": %d"
+      "}",
+      sitting_pressure,
+      is_sitting ? "true" : "false",
+      SITTING_CHECK_WINDOW_DATA_POINTS,
+      recent_sitting_counter.get_sum()
     );
-
-    too_much_sitting_buzzer.tick();
 
     const auto res = armkn::send_http_request_without_response(
       client,
