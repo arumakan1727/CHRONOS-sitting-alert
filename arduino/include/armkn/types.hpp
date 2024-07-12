@@ -6,6 +6,8 @@ namespace armkn {
 using MilliTimeUInt = decltype(millis());
 static_assert(std::is_unsigned_v<MilliTimeUInt>);
 
+enum class Result : uint8_t { Ok, Err };
+
 using Task = void (*)();
 
 class RepeatCount {
