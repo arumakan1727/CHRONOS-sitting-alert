@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "api-server"
+version = "0.1.0"
+description = ""
+authors = ["arumakan1727 <33191176+arumakan1727@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.8.2"
+pydantic-settings = "^2.3.4"
+fastapi = "^0.111.0"
+uvicorn = {extras = ["standard"], version = "^0.30.1"}
+gunicorn = "^22.0.0"
+influxdb-client = "^1.44.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.1"
+pyright = "^1.1.370"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
