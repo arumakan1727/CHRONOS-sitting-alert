@@ -22,25 +22,12 @@ void print_wifi_status() {
   Serial.println(" dBm");
 }
 
-void setup_wifi(
-  const char *ssid,
-  const char *password,
-  const Task on_success,
-  const Task on_failure
-) {
-  // Initialize serial and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ;  // wait for serial port to connect. Needed for native USB port only
-  }
-
+Result setup_wifi(const char *ssid, const char *password) {
+  Serial.println("[INFO] Setupping WiFi...");
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
-    on_failure();
-    // don't continue
-    while (true)
-      ;
+    return Result::Err;
   }
 
   String fv = WiFi.firmwareVersion();
@@ -57,7 +44,7 @@ void setup_wifi(
     status = WiFi.begin(ssid, password);
   }
 
-  on_success();
+  return Result::Ok;
 }
 
 }  // namespace armkn
