@@ -23,7 +23,7 @@ COPY pyproject.toml* poetry.lock* ./
 RUN poetry install --without dev
 
 # ソースコードをコピー
-COPY ./api /src/api
+COPY ./app /src/app
 
 # gunicornのサーバーを立ち上げる
 CMD ["poetry", "run", "gunicorn", "-k", "uvicorn.workers.UvicornWorker", "app.main:api", "--bind", "0.0.0.0:8000", "--workers", "2", "--access-logfile", "-"]
