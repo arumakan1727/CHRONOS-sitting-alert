@@ -1,26 +1,18 @@
 name: 'chronos'
 
 services:
-  influxdb:
-    image: influxdb:2.7
+  api:
+    build:
+      context: ./api_server
+      dockerfile: Dockerfile
     ports:
-      - "${COMPOSE_INFLUXDB_HOST_PORT:-8086}:8086"
-    volumes:
-      - influxdb_data:/var/lib/influxdb2
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - 8000:8000
     env_file:
-      - .env
+      - .env.api_server
+    networks:
+      - influx-db-network
 
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "${COMPOSE_DOCKER_HOST_PORT:-3080}:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - influxdb
-
-volumes:
-  influxdb_data:
-  grafana_data:
+networks:
+  influx-db-network:
+    external: true
+    name: ${DOCKER_COMPOSE_INFLUX_DB_NETWORK}
