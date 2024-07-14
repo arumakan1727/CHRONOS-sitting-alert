@@ -14,11 +14,20 @@ influxdb = InfluxDBClient(
     org=cfg.INFLUXDB_ORG,
 )
 influxdb_write_api = influxdb.write_api(write_options=SYNCHRONOUS)
+influxdb_query_api = influxdb.query_api()
 
 
 @api.get("/health")
 def get_health() -> PlainTextResponse:
     return PlainTextResponse("OK")
+
+
+@api.get("/health/influxdb")
+def fetch_influxdb_for_healthcheck() -> PlainTextResponse:
+    influxdb_query_api.query(
+        f'from(bucket:"{cfg.INFLUXDB_BUCKET}") |> range(start: -10s)'
+    )
+    return PlainTextResponse("Fetching data from InfxluDB was success")
 
 
 class PostSittingStatusRequest(BaseModel):
