@@ -46,6 +46,7 @@ auto too_much_sitting_buzzer = armkn::PeriodicDigitalSignal(
 
 WiFiClient client;
 
+// cppcheck-suppress unusedFunction
 void setup() {
   Serial.begin(9600);
   while (!Serial) {
@@ -138,6 +139,7 @@ auto post_sitting_puressure_task =
     }
   });
 
+// cppcheck-suppress unusedFunction
 void loop() {
   check_sitting_pressure_task.tick();
   post_sitting_puressure_task.tick();
