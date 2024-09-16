@@ -1,0 +1,47 @@
+name: Test arduino
+on:
+  pull_request:
+    paths:
+      - arduino/**
+      - .github/workflows/test_arduino.yml
+  push:
+    paths:
+      - arduino/**
+      - .github/workflows/test_arduino.yml
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: arduino
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-pio
+          path: |
+            ~/.cache/pip
+            ~/.platformio
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build
+        run: pio run
+
+      - name: Lint
+        run: pio check --fail-on-defect low --skip-packages
+
+      - name: Format (overwrite)
+        run: find . -type f \( -name '*.hpp' -o -name '*.cpp' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
+
+      - name: Check format diff
+        run: git diff --exit-code
