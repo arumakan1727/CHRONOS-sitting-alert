@@ -17,8 +17,8 @@ influxdb-client = "^1.44.0"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.5.1"
-pyright = "^1.1.370"
+ruff = "*"
+pyright = "*"
 
 [build-system]
 requires = ["poetry-core"]
