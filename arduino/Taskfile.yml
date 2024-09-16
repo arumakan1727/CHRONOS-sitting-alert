@@ -13,8 +13,16 @@ tasks:
     silent: true
 
   #--------------------------------------------
-  # lint, format, typecheck
+  # lint, format
 
   fmt:
     desc: C++のソースコードを整形する。
     cmd: find . -type f \( -name '*.hpp' -o -name '*.cpp' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
+
+  lint:
+    desc: cppcheckでlintする。
+    cmd: pio check --fail-on-defect low --skip-packages
+
+  build:
+    desc: ビルドする。
+    cmd: pio run
