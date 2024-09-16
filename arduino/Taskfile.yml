@@ -16,5 +16,5 @@ tasks:
   # lint, format, typecheck
 
   fmt:
-    desc: ソースコードを整形する。
-    cmd: find . -type f -name '*.hpp' -o -name '*.cpp' -o -name '*.h' | xargs clang-format -i
+    desc: C++のソースコードを整形する。
+    cmd: find . -type f \( -name '*.hpp' -o -name '*.cpp' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
