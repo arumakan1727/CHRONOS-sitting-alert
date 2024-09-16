@@ -1,0 +1,56 @@
+name: Test api_server
+on:
+  pull_request:
+    paths:
+      - api_server/**
+      - .github/workflows/test_api_server.yml
+  push:
+    paths:
+      - api_server/**
+      - .github/workflows/test_api_server.yml
+    branches:
+      - main
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: api_server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: pipx install poetry
+
+      - name: Set up Python and cache Poetry dependencies
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: 'api_server/.python-version'
+          cache: 'poetry'
+
+      - run: poetry install
+
+      - run: pwd && ls -la
+
+      - name: Lint
+        id: lint
+        run: poetry run ruff check .
+        continue-on-error: true
+
+      - name: Format check
+        id: format_check
+        run: poetry run ruff format --check --diff .
+        continue-on-error: true
+
+      - name: Type check
+        id: type_check
+        run: poetry run pyright
+        continue-on-error: true
+
+      - name: Result
+        if: ${{ steps.lint.outcome == 'failure' || steps.format_check.outcome == 'failure' || steps.type_check.outcome == 'failure' }}
+        run: |
+          echo "Static check failed"
+          exit 1

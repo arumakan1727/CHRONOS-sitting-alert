@@ -14,7 +14,7 @@ template <
   typename Sum = decltype(std::declval<Elem>() + std::declval<Elem>())>
 class SummingQueue {
  public:
-  SummingQueue(size_t capacity) : capacity(capacity), sum(), queue() {}
+  explicit SummingQueue(size_t capacity) : capacity(capacity), sum(), queue() {}
 
   void add(Elem x) {
     if (queue.size() >= capacity) {

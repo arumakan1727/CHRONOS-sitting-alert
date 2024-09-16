@@ -34,7 +34,7 @@ class RepeatCount {
   RepeatCount() = default;
   explicit constexpr RepeatCount(repeat_t count) : count(count) {}
 
-  repeat_t count;
+  repeat_t count = 0;
 };
 
 inline const RepeatCount RepeatCount::INF = RepeatCount(-1);
