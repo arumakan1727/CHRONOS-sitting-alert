@@ -8,6 +8,8 @@ on:
     paths:
       - api_server/**
       - .github/workflows/test_api_server.yml
+    branches:
+      - main
 
 jobs:
   static-check:

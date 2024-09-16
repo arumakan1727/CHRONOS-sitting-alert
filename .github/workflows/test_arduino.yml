@@ -8,9 +8,11 @@ on:
     paths:
       - arduino/**
       - .github/workflows/test_arduino.yml
+    branches:
+      - main
 
 jobs:
-  static-check:
+  build-and-lint:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -33,6 +35,9 @@ jobs:
 
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
+
+      - name: Prepare dummy env.h
+        run: cp src/env.example.h src/env.h
 
       - name: Build
         run: pio run
