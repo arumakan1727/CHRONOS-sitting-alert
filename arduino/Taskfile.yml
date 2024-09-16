@@ -17,7 +17,7 @@ tasks:
 
   fmt:
     desc: C++のソースコードを整形する。
-    cmd: find . -type f \( -name '*.hpp' -o -name '*.cpp' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
+    cmd: find src lib include test -type f \( -name '*.hpp' -o -name '*.cpp' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
 
   lint:
     desc: cppcheckでlintする。
