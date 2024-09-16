@@ -13,6 +13,7 @@ on:
 
 jobs:
   build-and-lint:
+    name: Build & Lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -45,8 +46,22 @@ jobs:
       - name: Lint
         run: pio check --fail-on-defect low --skip-packages
 
-      - name: Format (overwrite)
-        run: find . -type f \( -name '*.hpp' -o -name '*.cpp' -o -name '*.h' \) -print0 | xargs -0 clang-format -i
+  formatting-check:
+    name: Formatting Check
+    runs-on: ubuntu-latest
 
-      - name: Check format diff
-        run: git diff --exit-code
+    strategy:
+      matrix:
+        path:
+          - src
+          - lib
+          - include
+          - test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jidicula/clang-format-action@v4.13.0
+        with:
+          clang-format-version: '17'
+          check-path: ${{ matrix.path }}
